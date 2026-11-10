@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+client_secret*.json
+credentials*.json
+*.tsbuildinfo
+.qa/

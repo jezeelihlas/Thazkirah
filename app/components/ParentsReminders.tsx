@@ -1,0 +1,24 @@
+export default function ParentsReminders() {
+  return <section className="parents-reminders" aria-labelledby="parents-reminders-title">
+    <div className="routine-heading"><div><span className="overline">KINDNESS BEGINS AT HOME</span><h2 id="parents-reminders-title">Remember your parents.</h2></div></div>
+    <div className="parents-reminder-grid">
+      <article className="panel parent-reminder"><span className="reminder-label">YOUR MOTHER · உன் தாய்</span><h3>Paradise beneath your mother’s feet</h3>
+        <p className="reminder-arabic" lang="ar" dir="rtl">عَنْ مُعَاوِيَةَ بْنِ جَاهِمَةَ السُّلَمِيِّ، أَنَّ جَاهِمَةَ جَاءَ إِلَى النَّبِيِّ ﷺ فَقَالَ: يَا رَسُولَ اللَّهِ، أَرَدْتُ أَنْ أَغْزُوَ وَقَدْ جِئْتُ أَسْتَشِيرُكَ. فَقَالَ: <strong>«هَلْ لَكَ مِنْ أُمٍّ؟»</strong> قَالَ: نَعَمْ. قَالَ: <strong>«فَالْزَمْهَا، فَإِنَّ الْجَنَّةَ تَحْتَ رِجْلَيْهَا»</strong>.</p>
+        <div className="hadith-translation"><h4>English meaning</h4><p className="reminder-meaning">Mu‘awiyah ibn Jahimah al-Sulami narrated that Jahimah came to the Prophet ﷺ and said: “O Messenger of Allah, I intend to go on a military expedition, and I have come to seek your advice.” He asked: “Do you have a mother?” He replied: “Yes.” He ﷺ said: <strong>“Then stay with her, for Paradise is beneath her feet.”</strong></p></div>
+        <div className="hadith-translation" lang="ta"><h4>தமிழ் பொருள்</h4><p className="reminder-tamil">முஆவியா இப்னு ஜாஹிமா அஸ்ஸுலமீ அறிவிக்கிறார்: ஜாஹிமா நபி ﷺ அவர்களிடம் வந்து, “அல்லாஹ்வின் தூதரே! நான் போருக்குச் செல்ல விரும்புகிறேன். தங்களிடம் ஆலோசனை கேட்க வந்துள்ளேன்” என்று கூறினார். நபி ﷺ அவர்கள், “உனக்குத் தாய் இருக்கிறாரா?” என்று கேட்டார்கள். அவர், “ஆம்” என்றார். அப்போது நபி ﷺ அவர்கள், <strong>“அவளுடனேயே இருந்து அவளைக் கவனித்துக்கொள். நிச்சயமாகச் சொர்க்கம் அவளுடைய கால்களின் கீழ் உள்ளது”</strong> என்று கூறினார்கள்.</p></div>
+        <p className="reminder-reflection">Honour and care for your mother. Serving her with kindness is a path to Paradise.</p>
+        <p className="reminder-tamil reflection" lang="ta">தாயை மதித்து, அன்புடன் கவனித்து, அவளுக்குப் பணிவிடை செய்வது சொர்க்கத்தை அடைவதற்கான ஒரு வழியாகும்.</p>
+        <a className="source-link" href="https://sunnah.com/nasai:3104" target="_blank" rel="noreferrer">Sunan an-Nasa’i 3104 · Sahih (Darussalam) ↗</a><small className="grade">Full narration and meanings · முழு அறிவிப்பும் அதன் பொருளும்</small>
+      </article>
+      <article className="panel parent-reminder"><span className="reminder-label">YOUR FATHER · உன் தந்தை</span><h3>Allah’s pleasure and the father’s pleasure</h3>
+        <p className="reminder-arabic" lang="ar" dir="rtl">عَنْ عَبْدِ اللَّهِ بْنِ عَمْرٍو رَضِيَ اللَّهُ عَنْهُمَا، عَنِ النَّبِيِّ ﷺ قَالَ: <strong>«رِضَا الرَّبِّ فِي رِضَا الْوَالِدِ، وَسَخَطُ الرَّبِّ فِي سَخَطِ الْوَالِدِ»</strong>.</p>
+        <div className="hadith-translation"><h4>English meaning</h4><p className="reminder-meaning">‘Abdullah ibn ‘Amr narrated that the Prophet ﷺ said: <strong>“The Lord’s pleasure is in the father’s pleasure, and the Lord’s displeasure is in the father’s displeasure.”</strong></p></div>
+        <div className="hadith-translation" lang="ta"><h4>தமிழ் பொருள்</h4><p className="reminder-tamil">அப்துல்லாஹ் இப்னு அம்ர் (ரலி) அறிவிக்கிறார்: நபி ﷺ அவர்கள் கூறினார்கள்: <strong>“இறைவனின் திருப்தி தந்தையின் திருப்தியில் உள்ளது. இறைவனின் அதிருப்தி தந்தையின் அதிருப்தியில் உள்ளது.”</strong></p></div>
+        <p className="reminder-reflection">Seek Allah’s pleasure by treating your father with kindness, respect, and care.</p>
+        <p className="reminder-tamil reflection" lang="ta">தந்தையை மதித்து, அன்புடனும் அக்கறையுடனும் நடத்துவதன் மூலம் அல்லாஹ்வின் திருப்தியை நாடுங்கள்.</p>
+        <a className="source-link" href="https://sunnah.com/tirmidhi:1899" target="_blank" rel="noreferrer">Jami‘ at-Tirmidhi 1899 · Hasan in the linked translation ↗</a>
+        <details className="hadith-transmission"><summary>About the narration · அறிவிப்பு பற்றிய குறிப்பு</summary><p>There is scholarly discussion about its transmission. Al-Tirmidhi considered the version narrated as ‘Abdullah ibn ‘Amr’s own statement stronger, while al-Albani accepted its attribution to the Prophet ﷺ. The linked English translation uses “parent”; the wording above renders the Arabic as “father”.</p><p lang="ta">இந்த அறிவிப்பின் அறிவிப்பாளர் தொடர் குறித்து அறிஞர்களிடையே விவாதம் உள்ளது. இதை அப்துல்லாஹ் இப்னு அம்ரின் சொந்தக் கூற்றாக அறிவிக்கும் வடிவமே வலுவானது என்று இமாம் திர்மிதி குறிப்பிட்டார். நபி ﷺ அவர்களுடன் இதனை இணைத்து அறிவிப்பதை அல்பானி ஏற்றுக்கொண்டார். இணைக்கப்பட்ட ஆங்கில மொழிபெயர்ப்பில் “பெற்றோர்” என உள்ளது; இங்கு அரபுச் சொல்லுக்கு “தந்தை” எனப் பொருள் தரப்பட்டுள்ளது.</p><a className="source-link" href="https://dorar.net/h/23pwSUI3" target="_blank" rel="noreferrer">Al-Albani’s grading · Sahih at-Tirmidhi 1899 ↗</a></details>
+      </article>
+    </div>
+  </section>;
+}
