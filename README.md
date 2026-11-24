@@ -90,3 +90,10 @@ History now uses a single progress explorer with a responsive trend chart and da
 For future ACJU revisions, refresh the bundled snapshot with `npm run refresh:prayer-times`. This requires Python with pypdf (`python -m pip install pypdf`) for the development-time import, plus internet access. Runtime hosting requires neither Python nor PDF parsing. The importer checks every PDF's zone, month labels, column headings, day count, time format and prayer order, and fails if a source changes unexpectedly. After an interrupted download, run `node scripts/fetch-acju.mjs --resume` then `python scripts/import-acju.py`. Rebuild/redeploy after refreshing. Daily date changes automatically select the correct row from this snapshot; later publisher revisions require refreshing it.
 
 Source and attribution: All Ceylon Jamiyyathul Ulama (ACJU), https://www.acju.lk/prayer-times/.
+# Administration and online history
+
+See [ADMIN_DATABASE_SETUP.md](ADMIN_DATABASE_SETUP.md) for Supabase migration, server environment variables, private admin credentials, importing existing browser history, and deploying the update.
+
+## Email sign-in and sign-up
+
+Profile includes Sign in and Sign up with email/password, email verification codes, password recovery, and Continue with Google. See [EMAIL_ACCOUNT_SETUP.md](EMAIL_ACCOUNT_SETUP.md) for the required Supabase Auth settings, publishable key, OTP email templates, SMTP delivery, pricing, and verification steps. Cloud history is optional for either login method. Google and email accounts remain separate; use the same method on each device. Earlier browser-only and Google-only descriptions above document older versions; the current cloud and email setup guides describe the implemented account features.

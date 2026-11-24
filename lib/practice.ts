@@ -21,7 +21,7 @@ export const dailyHabits: Practice[] = [
   { id: 'habit-sleep', title: 'Sleep on time', hint: 'Wind down and make room for rest.', kind: 'habit', time: '22:00' },
   { id: 'habit-wake', title: 'Wake up on time', hint: 'Begin your day with intention.', kind: 'habit', time: '05:00' },
   { id: 'habit-duha', title: 'Duha prayer (Luha)', ar: 'صَلَاةُ الضُّحَى', hint: 'Make space for voluntary forenoon prayer.', kind: 'habit' },
-  { id: 'habit-exercise', title: 'Gym or Jogging', hint: 'Move your body in a way that works for you.', kind: 'habit' },
+  { id: 'habit-exercise', title: 'Physic', hint: 'Move your body in a way that works for you.', kind: 'habit' },
   { id: 'habit-quran', title: 'Learn the Qur’an', ar: 'تَعَلُّمُ الْقُرْآن', hint: 'Practise recitation, memorisation, or understanding.', kind: 'habit' },
   { id: 'habit-parents', title: 'Care for your parents', hint: 'A call, a kind word, or a helping hand.', kind: 'habit' },
 ];
@@ -69,7 +69,7 @@ export function sanitisePractice(value: unknown): Practice | null {
   if (typeof saved.id !== 'string' || typeof saved.title !== 'string' || typeof saved.hint !== 'string') return null;
   const known = practiceCatalog.find(p => p.id === saved.id);
   const habit = known?.kind === 'habit' || (!known && saved.kind === 'habit');
-  const title = saved.id === 'habit-exercise' && saved.title === 'Gym or jogging' ? 'Gym or Jogging' : saved.title;
+  const title = saved.id === 'habit-exercise' && (saved.title === 'Gym or jogging' || saved.title === 'Gym or Jogging') ? 'Physic' : saved.title;
   return {
     ...(known || { id: saved.id, title: saved.title.slice(0, 80), hint: saved.hint.slice(0, 160) }),
     ...(habit ? { title: title.trim().slice(0, 80) || known?.title || 'Daily habit', kind: 'habit' as const } : {}),

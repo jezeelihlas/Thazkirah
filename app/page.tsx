@@ -11,12 +11,15 @@ import ParentsReminders from './components/ParentsReminders';
 import PracticeIcon from './components/PracticeIcon';
 import RoutineDragHandle from './components/RoutineDragHandle';
 import ActivityNote from './components/ActivityNote';
+import CloudHistory from './components/CloudHistory';
+import Planning from './components/Planning';
 import { acjuSource, acjuCityZones, acjuZoneLabels } from '../lib/acju-zones';
 
 type Period = 'morning' | 'evening';
-type Preferences = { routine: Practice[]; archived: Practice[]; habitsVersion: number; layoutVersion: number; selected: Record<Period, string[]>; city: string; school: string; name: string; theme: 'light' | 'dark' | 'system'; appearanceVersion: number };
+type Plan = { name: string; tasks: string[] };
+type Preferences = { routine: Practice[]; archived: Practice[]; habitsVersion: number; layoutVersion: number; selected: Record<Period, string[]>; city: string; school: string; name: string; theme: 'light' | 'dark' | 'system'; appearanceVersion: number; plans: Plan[] };
 type Verse = { aya: string; arabic_text: string; translation: string };
-const initial: Preferences = { routine: practiceCatalog, archived: [], habitsVersion: 1, layoutVersion: 2, selected: { morning: ['ikhlas', 'falaq', 'nas', 'tasbih'], evening: ['ikhlas', 'falaq', 'nas', 'tasbih'] }, city: 'Colombo', school: '0', name: '', theme: 'light', appearanceVersion: 2 };
+const initial: Preferences = { routine: practiceCatalog, archived: [], habitsVersion: 1, layoutVersion: 2, selected: { morning: ['ikhlas', 'falaq', 'nas', 'tasbih'], evening: ['ikhlas', 'falaq', 'nas', 'tasbih'] }, city: 'Colombo', school: '0', name: '', theme: 'light', appearanceVersion: 2, plans: [1, 2, 3, 4].map(index => ({ name: `Plan ${index}`, tasks: ['Wake up on time', 'Learn the Qur’an', 'Physic'] })) };
 const isPeriod = (id: string): id is Period => id === 'morning' || id === 'evening';
 const available = (period: Period) => adhkar.filter(d => !d.period || d.period === period);
 const formatTime = (time?: string) => {
@@ -32,6 +35,8 @@ export default function Home() {
   const [prefs, setPrefs] = useState<Preferences>(initial);
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
+  const [storageOwner, setStorageOwner] = useState('');
+  const [cloudLoading, setCloudLoading] = useState(true);
   const [tab, setTab] = useState('today');
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -76,7 +81,7 @@ export default function Home() {
         const arranged = p.layoutVersion >= 1 ? prepared : orderDefaultRoutine(prepared);
         const routine = p.layoutVersion >= 2 ? arranged : placeIstighfarBeforeSleep(arranged);
         const archived = Array.isArray(p.archived) ? p.archived.map(sanitisePractice).filter((item: Practice | null): item is Practice => !!item && !routine.some(active => active.id === item.id)) : [];
-        setPrefs({ routine, archived, habitsVersion: 1, layoutVersion: 2, selected: Object.fromEntries((['morning', 'evening'] as Period[]).map(period => [period, Array.isArray(p.selected?.[period]) ? p.selected[period].filter((id: string) => available(period).some(d => d.id === id)) : initial.selected[period]])) as Preferences['selected'], city: Object.hasOwn(cities, p.city) ? p.city : 'Colombo', school: p.school === '1' ? '1' : '0', name: typeof p.name === 'string' ? p.name : '', theme: p.appearanceVersion === 2 && (p.theme === 'light' || p.theme === 'dark' || p.theme === 'system') ? p.theme : 'light', appearanceVersion: 2 });
+        setPrefs({ routine, archived, habitsVersion: 1, layoutVersion: 2, selected: Object.fromEntries((['morning', 'evening'] as Period[]).map(period => [period, Array.isArray(p.selected?.[period]) ? p.selected[period].filter((id: string) => available(period).some(d => d.id === id)) : initial.selected[period]])) as Preferences['selected'], city: Object.hasOwn(cities, p.city) ? p.city : 'Colombo', school: p.school === '1' ? '1' : '0', name: typeof p.name === 'string' ? p.name : '', theme: p.appearanceVersion === 2 && (p.theme === 'light' || p.theme === 'dark' || p.theme === 'system') ? p.theme : 'light', appearanceVersion: 2, plans: Array.isArray(p.plans) && p.plans.length === 4 ? p.plans.map((plan: any, index: number) => ({ name: typeof plan?.name === 'string' ? plan.name.slice(0, 40) : `Plan ${index + 1}`, tasks: Array.isArray(plan?.tasks) ? plan.tasks.filter((task: unknown): task is string => typeof task === 'string').slice(0, 30) : initial.plans[index].tasks })) : initial.plans });
       }
     } catch { setStorageError(true); }
     setReady(true);
@@ -103,9 +108,9 @@ export default function Home() {
 
   useEffect(() => {
     if (!ready) return;
-    try { localStorage.setItem('noor-daily-v1', JSON.stringify(records)); localStorage.setItem('thazkirah-preferences-v2', JSON.stringify(prefs)); }
+    try { localStorage.setItem(storageOwner ? `thazkirah-records:${storageOwner}` : 'noor-daily-v1', JSON.stringify(records)); localStorage.setItem(storageOwner ? `thazkirah-preferences:${storageOwner}` : 'thazkirah-preferences-v2', JSON.stringify(prefs)); }
     catch { setStorageError(true); }
-  }, [records, prefs, ready]);
+  }, [records, prefs, ready, storageOwner]);
 
   useEffect(() => {
     if (!date || !ready || tab !== 'today') return;
@@ -206,14 +211,30 @@ export default function Home() {
       <p className="schedule-note">Asia/Colombo · UTC+05:30 · <a href={acjuSource} target="_blank" rel="noreferrer">ACJU published timetable</a> · {acjuZoneLabels[acjuCityZones[prefs.city]]} · {prefs.school === '1' ? 'Hanafi' : 'Shafi‘i'} Asr. {schedulePdf && <a href={schedulePdf} target="_blank" rel="noreferrer">View this month’s official PDF ↗</a>} Follow your mosque for Jamaath.</p>
     </div></section>}
     <main className="page-content">
+      <CloudHistory ready={ready} records={records} preferences={prefs} onOwner={setStorageOwner} onLoading={setCloudLoading} apply={snapshot => {
+        const clean: Records = {};
+        for (const [key, value] of Object.entries(snapshot.records)) if (/^\d{4}-\d{2}-\d{2}$/.test(key)) clean[key] = sanitiseDayRecord(value);
+        const p = snapshot.preferences as Partial<Preferences>;
+        setRecords(clean);
+        setPrefs({ ...initial,
+          routine: prepareRoutine(p.routine, true),
+          archived: Array.isArray(p.archived) ? p.archived.map(sanitisePractice).filter((item): item is Practice => !!item) : [],
+          city: p.city && Object.hasOwn(cities, p.city) ? p.city : initial.city,
+          school: p.school === '1' ? '1' : '0', name: typeof p.name === 'string' ? p.name.slice(0, 50) : '',
+          theme: p.theme === 'dark' || p.theme === 'system' ? p.theme : 'light',
+          selected: Object.fromEntries((['morning', 'evening'] as Period[]).map(period => [period, Array.isArray(p.selected?.[period]) ? p.selected[period].filter(id => available(period).some(d => d.id === id)) : initial.selected[period]])) as Preferences['selected'], plans: Array.isArray(p.plans) && p.plans.length === 4 ? p.plans : initial.plans,
+        });
+      }} />
+      <div inert={cloudLoading || undefined}>
       {storageError && <p className="alert" role="alert">Your browser could not read or save some data. Allow local storage to keep your progress and preferences.</p>}
       <div className="intro"><div><div className="eyebrow" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div><h1>{tab === 'history' ? 'Your days of intention.' : tab === 'profile' ? 'A space that feels like you.' : prefs.name ? `A day with intention, ${prefs.name}.` : 'A day with intention.'}</h1><p>{tab === 'today' ? 'Make space for prayer, remembrance, and reflection.' : 'Small acts. Sincere intentions. Every single day.'}</p></div>
         {tab === 'today' && <div className="date-picker"><button aria-label="Previous day" onClick={() => shift(-1)} disabled={!date}><ChevronLeft size={17} /></button><input aria-label="Practice date" type="date" value={date} onChange={e => { if (e.target.value) viewDate(e.target.value); }} /><button aria-label="Next day" onClick={() => shift(1)} disabled={!date}><ChevronRight size={17} /></button><button className="today-button" onClick={goToday}>Today</button></div>}
       </div>
       {tab === 'today' && date && currentDate && date !== currentDate && <p className="viewing-date-note">Viewing {date}. <button onClick={goToday}>Return to today</button></p>}
-      {tab === 'profile' ? <section className="panel profile-panel"><span className="card-icon"><UserRound size={26} /></span><h2>Your profile</h2><AccountSignIn /><p>Personalise your daily space. Changes save automatically on this device.</p><label>Your name<input maxLength={50} value={prefs.name} placeholder="What should we call you?" onChange={e => setPrefs(p => ({ ...p, name: e.target.value }))} /></label><label>Prayer times city<select value={prefs.city} onChange={e => setPrefs(p => ({ ...p, city: e.target.value }))}>{Object.keys(cities).map(c => <option key={c}>{c}</option>)}</select></label><label>ACJU Asr timetable<select value={prefs.school} onChange={e => setPrefs(p => ({ ...p, school: e.target.value }))}><option value="0">Shafi‘i (ACJU)</option><option value="1">Hanafi (ACJU)</option></select></label><p>Timezone: Asia/Colombo (Sri Lanka). Your routine, dhikr choices, and progress are stored in this browser.</p><button className="primary-button" onClick={() => { goToday(); setEditing(true); }}>Manage my daily routine</button></section>
+      {tab === 'profile' ? <section className="panel profile-panel"><span className="card-icon"><UserRound size={26} /></span><h2>Your profile</h2><AccountSignIn /><p>Personalise your daily space. Changes save automatically on this device.</p><label>Your name<input maxLength={50} value={prefs.name} placeholder="What should we call you?" onChange={e => setPrefs(p => ({ ...p, name: e.target.value }))} /></label><label>Prayer times city<select value={prefs.city} onChange={e => setPrefs(p => ({ ...p, city: e.target.value }))}>{Object.keys(cities).map(c => <option key={c}>{c}</option>)}</select></label><label>ACJU Asr timetable<select value={prefs.school} onChange={e => setPrefs(p => ({ ...p, school: e.target.value }))}><option value="0">Shafi‘i (ACJU)</option><option value="1">Hanafi (ACJU)</option></select></label><p>Timezone: Asia/Colombo (Sri Lanka). Your routine and progress stay in this browser unless you enable Cloud history above.</p><button className="primary-button" onClick={() => { goToday(); setEditing(true); }}>Manage my daily routine</button></section>
       : tab === 'history' ? <History records={records} routine={prefs.routine} archived={prefs.archived} today={currentDate} openDay={viewDate} />
       : <>
+        <Planning date={date} plans={prefs.plans} records={records} routine={prefs.routine} onPlans={plans => setPrefs(p => ({ ...p, plans }))} onRecords={setRecords} />
         <section className="hero"><div className="hero-copy"><span className="hero-label">ONE STEP AT A TIME</span><h2>Consistency grows<br />from little beginnings.</h2><p>Let today be another gentle step closer to Allah.</p><div className="hero-ar" lang="ar" dir="rtl">فَاذْكُرُونِي أَذْكُرْكُمْ</div><div className="hero-translation" lang="ta">என்னை நினைவுகூருங்கள்; நானும் உங்களை நினைவுகூருவேன்.</div><small>AL-BAQARAH 2:152 · EXCERPT</small></div><div className="hero-art" aria-hidden="true"><div className="arch"><span>☾</span><div className="minaret m1" /><div className="dome" /><div className="minaret m2" /><div className="art-line" /></div><span className="star s1">✦</span><span className="star s2">✧</span></div></section>
         <div className="progress-panel"><div className="progress-icon"><Check size={20} /></div><div className="progress-text"><strong>Your daily journey</strong><span>{stats.total > 0 && stats.completed === stats.total ? 'Alhamdulillah. Your routine is complete.' : 'Every sincere effort matters.'}</span></div><div className="progress-right"><div><strong>{stats.completed}<span> / {stats.total}</span></strong><span>completed</span></div><div className="track" role="progressbar" aria-label="Daily practice progress" aria-valuenow={stats.completed} aria-valuemin={0} aria-valuemax={stats.total || 1}><i style={{ width: `${stats.total ? stats.completed / stats.total * 100 : 0}%` }} /></div></div></div>
         <div className="routine-heading"><div><span className="overline">YOUR DAILY RHYTHM</span><h2>One practice at a time.</h2></div><button className={editing ? 'outline-button selected' : 'outline-button'} onClick={() => setEditing(e => !e)} aria-expanded={editing}><Settings2 size={16} />{editing ? 'Done editing' : 'Edit routine'}</button></div>
@@ -228,6 +249,7 @@ export default function Home() {
       </>}
       {tab === 'today' && <ParentsReminders />}
       <footer><span className="footer-brand">Thazkirah · تَذْكِرَة</span><span>With intention. With remembrance. With peace.</span><small>Saved in this browser on this device.</small></footer>
+      </div>
     </main>
     {reader && <dialog ref={dialog} className="reader" aria-labelledby="reader-title" onCancel={() => setReader('')} onClick={e => { if (e.target === e.currentTarget) { const rect = e.currentTarget.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) setReader(''); } }}><div className="reader-head"><div><span className="overline">READ & REMEMBER</span><h2 id="reader-title">{title}</h2></div><button autoFocus aria-label="Close reading" onClick={() => setReader('')}><X /></button></div>
       {(reader === '36' || reader === '67') && <><label className="translation-toggle"><input type="checkbox" checked={tamil} onChange={e => setTamil(e.target.checked)} />Show Tamil meanings · தமிழ்</label><p className="reading-source">Arabic & Tamil translation: Omar Sharif, via <a href={`https://quranenc.com/en/browse/tamil_omar/${reader}`} target="_blank" rel="noreferrer">QuranEnc ↗</a></p>{loading && <p role="status">Loading verses…</p>}{readingError && <p className="alert" role="alert">{readingError}</p>}<p className="bismillah" dir="rtl" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>{verses.map(v => <div className="ayah" key={v.aya}><span className="ayah-number">{v.aya}</span><p lang="ar" dir="rtl">{v.arabic_text}</p>{tamil && <div lang="ta">{v.translation}</div>}</div>)}</>}

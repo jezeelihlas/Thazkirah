@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { authConfig, sessionCookie } from '../../../../lib/auth';
+import { sessionConfig, sessionCookie } from '../../../../lib/auth';
 
 export async function POST(request: Request) {
-  const config = authConfig();
+  const config = sessionConfig();
   const origin = config?.origin || new URL(request.url).origin;
   if (request.headers.get('origin') !== origin) return Response.json({ error: 'Invalid origin.' }, { status: 403 });
   const response = NextResponse.json({ signedOut: true });

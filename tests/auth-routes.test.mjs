@@ -41,7 +41,10 @@ after(async () => {
 
 test('session endpoint verifies signed account cookies and never caches account data', async () => {
   const anonymous = await fetch(`${origin}/api/auth/session`);
-  assert.deepEqual(await anonymous.json(), { configured: true, account: null });
+  const anonymousBody = await anonymous.json();
+  assert.equal(anonymousBody.configured, true);
+  assert.equal(anonymousBody.account, null);
+  assert.equal(anonymousBody.storageKey, null);
   assert.equal(anonymous.headers.get('cache-control'), 'no-store');
   const account = { id: 'test-user', name: 'Test Account', email: 'test@example.com', exp: Date.now() + 60000 };
   const valid = await fetch(`${origin}/api/auth/session`, { headers: { cookie: `thazkirah-session=${signValue(account, secret)}` } });

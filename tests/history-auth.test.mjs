@@ -31,7 +31,7 @@ test('history retains removed practices and avoids counting jamaath twice', () =
 test('habit history remains available after a habit is hidden or removed', () => {
   const records = { '2026-11-10': { 'habit-exercise': true } };
   const removed = historyActivities([], records);
-  assert.ok(removed.some(activity => activity.id === 'habit-exercise' && activity.title === 'Gym or Jogging'));
+  assert.ok(removed.some(activity => activity.id === 'habit-exercise' && activity.title === 'Physic'));
   const hidden = historyActivities([{ id: 'habit-exercise', title: 'Evening walk', hint: '', hidden: true }], records);
   assert.ok(hidden.some(activity => activity.id === 'habit-exercise' && activity.title === 'Evening walk'));
 });
